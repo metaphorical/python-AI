@@ -35,3 +35,83 @@ class QueueFrontier(StackFrontier):
             node = self.frontier[0]
             self.frontier = self.frontier[1:]
             return node
+
+class Maze():
+
+    def __init__(self, filename):
+
+        # Read the file
+        with open(filename) as f:
+            contents = f.read()
+        
+        # Validate maze
+        if contents.count("A") != 1:
+            raise Exception("Maze must have exactly one starting point")
+        if contents.count("B") != 1:
+            raise Exception("Maze must have exactly one goal/exit")
+        
+        # determine hight and width of the maze 
+        contents = contents.splitlines()
+        self.height = len(contents)
+        self.width = max(len(line) for line in contents)
+
+        # keep track of the walls
+        self.walls = []
+        for i in range(self.height):
+            row = []
+            for j in range(self.width):
+                try:
+                    if contents[i][j] == "A":
+                        self.start = (i, j)
+                        row.append(False)
+                    elif contents[i][j] == "B":
+                        self.goal = (i, j)
+                        row.append(False)
+                    elif contents[i][j] == " ":
+                        row.append(False)
+                    else: 
+                        row.append(True)    
+                except IndexError:
+                    row.appemd(False)
+            self.walls.append[row]
+
+        self.solution = None
+    
+    def print(self):
+        solution = self.solution[1] if self.solution is not None else None
+        print()
+        for i,row in enumerate(self.walls):
+            for j,col in enumerate(row):
+                if col:
+                    print(" ", end="")
+                elif (i, j) == self.start:
+                    print("A", end="")
+                elif (i, j) == self.goal:
+                    print("B", end="")
+                elif solution is not None and (i, j) in solution:
+                    print("*", end="")
+                else:
+                    print(" ", end="")
+            print()
+        print()
+
+    def neighbors(self, state):
+        row, col = state
+
+        # all possible actions
+        candidates = [
+            ("up", (row-1, col)),
+            ("down", (row+1, col)),
+            ("left", (row, col-1)),
+            ("right", (row, col+1))
+        ]
+
+        #ensure actions are valid
+        result = []
+        for action, (r, c) in candidates:
+            try:
+                if not self.walls[r][c]:
+                    result.append((action, (r,c)))
+            except IndexError:
+                continue
+        return result
